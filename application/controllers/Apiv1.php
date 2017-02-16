@@ -321,7 +321,6 @@ class Apiv1 extends REST_Controller {
         }
     } 
 
-    
     public function getDetilProduk_post()
     {
         $this->load->model('penitip_model');
@@ -400,7 +399,8 @@ class Apiv1 extends REST_Controller {
                 'kategori_id'  => $this->post('kategori_id'),
                 'nama'         => $this->post('nama'),
                 'berat'        => $this->post('berat'),
-                'hargajual'    => $this->post('hargajual')                 
+                'hargajual'    => $this->post('hargajual'),                
+                'status'       => $this->post('status')                
             );
             $insert = $this->produk_model->insertProduk($insertProduk);
             //print_r($insertPenitip);die();
@@ -467,24 +467,24 @@ class Apiv1 extends REST_Controller {
 
     public function updateprodukbarkas_post()
     {
-        $this->load->model('penitip_model');
+        $this->load->model('produk_model');
         $session_data = $this->post('session_key');
         $id = $this->post('id');
-        $detilPenitip = array(            
+
+        $detilProduk = array(            
             'nama'          => $this->post('nama'),
-            'penitip_id'    => $this->input->post('penitip_id'),
-            'kategori_id'   => $this->input->post('kategori_id'),
-            'nama'          => $this->input->post('nama'),
-            'berat'         => $this->input->post('berat'),
-            'hargajual'     => $this->input->post('hargajual')                          
-        );
-        //print_r($id);die();
-        $session_key = $this->checkIfSessionBarkasExpired($session_data);
-        //print_r($session_key);die();
+            'penitip_id'    => $this->post('penitip_id'),
+            'kategori_id'   => $this->post('kategori_id'),
+            'nama'          => $this->post('nama'),
+            'berat'         => $this->post('berat'),
+            'hargajual'     => $this->post('hargajual'),
+            'status'        => $this->post('status')                          
+        );       
+        //print_r($detilProduk);die(); 
+        $session_key = $this->checkIfSessionBarkasExpired($session_data);        
         if ($session_key == true) {
-            //print_r($detilPenitip['id']);die();
-            $update = $this->penitip_model->updatePenitip($id, $detilPenitip);
-            //print_r($getPenitipList);die();
+            $update = $this->produk_model->updateProduk($id, $detilProduk);
+            //print_r($update);die(); 
             if($update == TRUE){
                 $hasil = array('status' => 1, 'message' => 'Update Data Sukses');            
                 header('Content-Type: application/json');
@@ -492,6 +492,32 @@ class Apiv1 extends REST_Controller {
             }  
             else {
                 $hasil = array('status' => 0, 'message' => 'Update Data Gagal');            
+                header('Content-Type: application/json');
+                echo json_encode($hasil);
+            }                            
+        }
+        else {
+            $hasil = array('status' => 0, 'message' => 'Session Key Tidak Ditemukan');            
+            header('Content-Type: application/json');
+            echo json_encode($hasil);
+        }
+    } 
+
+    public function deleteproduk_post()
+    {
+        $this->load->model('produk_model');
+        $session_data = $this->post('session_key');
+        $id = $this->post('id');
+        $session_key = $this->checkIfSessionBarkasExpired($session_data);
+        if ($session_key == true) {
+            $delete = $this->produk_model->hapusProduk($id);
+            if($delete == TRUE){
+                $hasil = array('status' => 1, 'message' => 'Sukses');            
+                header('Content-Type: application/json');
+                echo json_encode($hasil);
+            }  
+            else {
+                $hasil = array('status' => 0, 'message' => 'Gagal');            
                 header('Content-Type: application/json');
                 echo json_encode($hasil);
             }                            

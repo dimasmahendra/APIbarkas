@@ -7,13 +7,15 @@ class produk_model extends CI_Model{
 
 	function getProduk_list()
     {        
+        $condition = "a.status = 'aktif'";
         $this->db->select('a.id, a.penitip_id, a.kategori_id, a.nama, a.berat, a.hargajual, b.nama as namapenitip');
         $this->db->from('produk a');
         $this->db->join('penitip b', 'a.penitip_id = b.id', 'left');
+        $this->db->where($condition);
         $query = $this->db->get();              
         $result  = $query->result_array();
         return $result;    
-    }
+    }   
 
     function insertProduk($insertProduk)
     {        
@@ -45,10 +47,10 @@ class produk_model extends CI_Model{
         }
     }
 
-    function updatePenitip($id, $detilPenitip)
+    function updateProduk($id, $detilProduk)
     {        
         $this->db->where('id', $id);
-        $update = $this->db->update('penitip', $detilPenitip);
+        $update = $this->db->update('produk', $detilProduk);
         if ($update == '1') 
         {
             return TRUE;
@@ -59,13 +61,13 @@ class produk_model extends CI_Model{
         }
     }
 
-    function hapusPenitip($id)
+    function hapusProduk($id)
     {        
-        $detilPenitip = array(
+        $statusProduk = array(
             'status'   => 'tidak aktif'
         );
         $this->db->where('id', $id);
-        $delete = $this->db->update('penitip', $detilPenitip);
+        $delete = $this->db->update('produk', $statusProduk);
         if ($delete == '1') 
         {
             return TRUE;
