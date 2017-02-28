@@ -1,20 +1,24 @@
 <?php
-class produk_model extends CI_Model{
+class transaksi_model extends CI_Model{
 
 	function __construct() {
 		parent::__construct();
 	}
 
-	function getProduk_list()
+	function getProdukTransaksi_List($kodebarang)
     {        
-        $condition = "a.status = 'aktif'";
-        $this->db->select('a.id, a.penitip_id, a.kategori_id, a.unikid, a.nama, a.berat, a.hargajual, b.nama as namapenitip');
-        $this->db->from('produk a');
-        $this->db->join('penitip b', 'a.penitip_id = b.id', 'left');
+        $condition = "unikid =" . "'" . $kodebarang . "'";
+        $this->db->select('*');
+        $this->db->from('produk');
         $this->db->where($condition);
-        $query = $this->db->get();              
-        $result  = $query->result_array();
-        return $result;    
+        $this->db->limit(1);
+        $query = $this->db->get();
+        //print_r($query->row());die();        
+        if ($query->num_rows() == 1) {
+            return $query->row();
+        } else {
+            return false;
+        }
     }   
 
     function insertProduk($insertProduk)

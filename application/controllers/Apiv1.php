@@ -12,6 +12,16 @@ class Apiv1 extends REST_Controller {
         $this->load->helper('string');
     }
 
+    private function generateRandomString($length = 4) {
+        $characters = '0123456789';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
     private function createOrUpdateSessionBarkas($adminbarkas_id = null)
     {
         $session_key = null;
@@ -389,6 +399,18 @@ class Apiv1 extends REST_Controller {
     public function insertprodukbarkas_post()
     {
         $this->load->model('produk_model');
+        $lokasi_id = $this->post('lokasi_id'); 
+        $kode = date('mdy') . $this->generateRandomString();
+        if ($lokasi_id == '1') {
+            $idunik = 'CGK'.$kode;
+        }
+        else if ($lokasi_id == '2') {
+            $idunik = 'JOG'.$kode;
+        }
+        else if ($lokasi_id == '3') {
+            $idunik = 'SRG'.$kode;
+        }
+        
         $session_data = array(
             'session_key' => $this->post('session_key')                          
         );
@@ -400,8 +422,10 @@ class Apiv1 extends REST_Controller {
                 'nama'         => $this->post('nama'),
                 'berat'        => $this->post('berat'),
                 'hargajual'    => $this->post('hargajual'),                
-                'status'       => $this->post('status')                
+                'status'       => $this->post('status'),              
+                'unikid'       => $idunik                
             );
+
             $insert = $this->produk_model->insertProduk($insertProduk);
             //print_r($insertPenitip);die();
             if($insert == true){
@@ -529,4 +553,30 @@ class Apiv1 extends REST_Controller {
         }
     } 
     /*------------------------------------------------------ Produk Barkas ----------------------------------------------------- */
+
+    /*------------------------------------------------------ Transaksi Barkas ----------------------------------------------------*/
+    public function getproduktransaksi_post()
+    {
+        $this->load->model('transaksi_model');
+        $session_key = $this->checkIfSessionBarkasExpired($this->post('session_key'));
+        if ($session_key == true) {
+            $get = $this->transaksi_model->getProdukTransaksi_List($this->post('kodebarang'));            
+            if(!is_null($get)){
+                $hasil = array($get);            
+                header('Content-Type: application/json');
+                echo json_encode($hasil);
+            }  
+            else {
+                $hasil = array('status' => 0, 'message' => 'Gagal');            
+                header('Content-Type: application/json');
+                echo json_encode($hasil);
+            }                            
+        }
+        else {
+            $hasil = array('status' => 0, 'message' => 'Session Key Tidak Ditemukan');            
+            header('Content-Type: application/json');
+            echo json_encode($hasil);
+        }
+    } 
+    /*------------------------------------------------------ Transaksi Barkas ----------------------------------------------------*/
 }
