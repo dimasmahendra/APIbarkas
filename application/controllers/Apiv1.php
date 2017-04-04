@@ -409,35 +409,44 @@ class Apiv1 extends REST_Controller {
         }
         else if ($lokasi_id == '3') {
             $idunik = 'SRG'.$kode;
-        }
-        
+        }        
         $session_data = array(
-            'session_key' => $this->post('session_key')                          
-        );
-        $session_key = $this->checkIfSessionBarkasExpired($session_data['session_key']);
-        if ($session_key == true) {
-            $insertProduk = array(
-                'penitip_id'   => $this->post('penitip_id'),
-                'kategori_id'  => $this->post('kategori_id'),
-                'nama'         => $this->post('nama'),
-                'berat'        => $this->post('berat'),
-                'hargajual'    => $this->post('hargajual'),                
-                'status'       => $this->post('status'),              
-                'unikid'       => $idunik                
-            );
-
-            $insert = $this->produk_model->insertProduk($insertProduk);
-            //print_r($insertPenitip);die();
-            if($insert == true){
-                $hasil = array('status' => 1, 'message' => 'Insert Data Berhasil');            
-                header('Content-Type: application/json');
-                echo json_encode($hasil);
-            }  
+            'session_key' => $this->input->post('session_key')                          
+        );  
+        $session_key = $this->checkIfSessionBarkasExpired($session_data['session_key']);        
+        if ($session_key == true) { 
+            $uploaddir = $_SERVER['DOCUMENT_ROOT'].'/APIbarkas/assets/file/produk/';
+            $file_name = underscore($_FILES['foto']['name']);
+            $uploadfile = $uploaddir.$file_name;              
+            if (move_uploaded_file($_FILES['foto']['tmp_name'], $uploadfile)) {
+                $insertProduk = array(
+                    'penitip_id'   => $this->post('penitip_id'),
+                    'kategori_id'  => $this->post('kategori_id'),
+                    'nama'         => $this->post('nama'),
+                    'berat'        => $this->post('berat'),
+                    'hargajual'    => $this->post('hargajual'),                
+                    'status'       => $this->post('status'),              
+                    'foto'         => $file_name,              
+                    'unikid'       => $idunik               
+                );
+                $insert = $this->produk_model->insertProduk($insertProduk);
+                //print_r($insertPenitip);die();
+                if($insert == true){
+                    $hasil = array('status' => 1, 'message' => 'Insert Data Berhasil');            
+                    header('Content-Type: application/json');
+                    echo json_encode($hasil);
+                }  
+                else {
+                    $hasil = array('status' => 0, 'message' => 'Rekening Sama');            
+                    header('Content-Type: application/json');
+                    echo json_encode($hasil);
+                }    
+            } 
             else {
-                $hasil = array('status' => 0, 'message' => 'Rekening Sama');            
+                $hasil = array('status' => 0, 'message' => 'Gambar Gagal di Upload');            
                 header('Content-Type: application/json');
-                echo json_encode($hasil);
-            }                            
+                echo json_encode($hasil);     
+            }                                  
         }
         else {
             $hasil = array('status' => 0, 'message' => 'Session Key Tidak Ditemukan');            

@@ -18,13 +18,14 @@ class produk_model extends CI_Model{
     }   
 
     function insertProduk($insertProduk)
-    {        
+    {     
         $this->db->trans_start();
         $this->db->insert('produk', $insertProduk);
         $this->db->trans_complete();
         $query = $this->db->insert_id();  
         //print_r($query);die();    
-        if ($query == 0) {
+        if ($query == 0) {            
+           
             return true;
         } else {
             return false;
